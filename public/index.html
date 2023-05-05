@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Minichat </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            width: fit-content;
+            border-radius: 20px;
+            margin: 5px 0px 0px 5px;
+            background-color: rgb(236, 236, 236);
+            padding: 10px 20px 10px 20px;
+            max-width: 70%;
+        }
+
+        .sistema {
+            color: gray;
+            background-color: white;
+        }
+
+        .time {
+            font-size: 10px;
+            margin-left: 5px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body class="container">
+    <h1 class="mt-5"> Soporte y Mantenimiento PRBD </h1>
+    <hr>
+
+    <form id="miForm">
+        <div class="row">
+            <div class="col-8">
+
+                <input type="text" id="txtMessage" placeholder="Mensaje" class="form-control">
+
+            </div>
+
+            <div class="col-4">
+                <button class="btn btn-primary">Enviar</button>
+            </div>
+        </div>
+    </form>
+
+
+    <div class="row">
+        <div class="col">
+            <ul id="misMensajes" class="mt-2">
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"
+        integrity="sha512-rwu37NnL8piEGiFhe2c5j4GahN+gFsIn9k/0hkRY44iz0pc81tBNaUN56qF8X4fy+5pgAAgYi2C9FXdetne5sQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+        </script>
+
+<script src="
+https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js
+"></script>
+
+    <script>
+
+        const socket = io('http://localhost:8081');
+        const formulario = document.querySelector('#miForm');
+        const mensajes = document.querySelector('#misMensajes');
+        const txtMensaje = document.querySelector('#txtMessage');
+
+        socket.on( 'connect', () => {
+            console.log( ' Conectado!' );
+        });
+
+        formulario.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const newMessage = txtMensaje.value;
+            if (newMessage !== '') {
+                socket.emit('mensaje-to-server', { msg: newMessage, nombre: 'Antonio Aldair' });
+                txtMensaje.placeholder = 'ira escribe algo.. '
+            }
+            txtMensaje.value = '';
+        });
+
+        socket.on('mensaje-from-server', (data) => {
+            mensajes.innerHTML += `<li>${data.msg}</li><span class = 'time' >${ moment().format( 'hh:mm a' ) }</span>`
+        });
+
+        socket.on('mensaje-bienvenida', (data) => {
+            txtMensaje.placeholder = data.msg;
+            console.log(data.msg);
+        });
+
+        socket.on('aviso-from-server', (data) => {
+            mensajes.innerHTML += `<li class = 'sistema'>${data.msg}</li>`
+        })
+
+        // // En 2000 milesimas de segundo, ejecutar..
+        // setTimeout( () => {
+        //     socket.emit( 'mensaje-cliente', { msg: 'Hola Server!!', nombre: 'Antonio Aldair' } );
+        // }, 2000 );
+
+    </script>
+</body>
+
+</html>
